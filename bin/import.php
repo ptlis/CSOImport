@@ -2,30 +2,17 @@
 
 require_once '../vendor/autoload.php';
 
-// Handle arguments
 
-$fileName = null;
 
-if (count($argv) > 1) {
+$app = new \Cilex\Application('CSOImport', '0.1');
 
-    if ($argv[1] === '--help' || $argv[1] === 'help') {
-        // Help page
+$app->register(
+    new \Cilex\Provider\ConfigServiceProvider(),
+    array(
+        'config.path' => __DIR__.'/../src/ptlis/CSOImport/config.yml'
+    )
+);
 
-        echo 'Usage:' . "\n";
-        echo '  ./import' . "\n";
+$app->command(new ptlis\CSOImport\Command\ImportCommand($app['config']['import_map']));
 
-        echo "\n";
-    } elseif (substr($argv[count($argv) - 1], 0, 1) === '/') {
-        // The final element should be a path
-        $fileName = $argv[count($argv) - 1];
-    }
-
-} else {
-    echo 'bad call'."\n\n";
-    die();
-}
-
-if ($fileName !== null) {
-    $CSOImporter = new \ptlis\CSOImport\CSOImport($argv[count($argv) - 1]);
-    $CSOImporter->extract();
-}
+$app->run();

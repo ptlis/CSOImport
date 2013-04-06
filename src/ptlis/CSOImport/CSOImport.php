@@ -7,10 +7,12 @@ namespace ptlis\CSOImport;
 class CSOImport
 {
     private $fileName;
+    private $importMap;
 
-    public function __construct($fileName)
+    public function __construct($fileName, $importMap)
     {
         $this->fileName = $fileName;
+        $this->importMap = $importMap;
     }
 
 
@@ -49,7 +51,12 @@ class CSOImport
                 if (count($nameParts) == 2 && $nameParts[0] == 'Data') {
                     $fileObj = new \SplFileObject('zip://' . $this->fileName . '#' . $stat['name']);
                     while (!$fileObj->eof()) {
-                        echo print_r($fileObj->fgetcsv(), true)."\n";
+                        $rawData = $fileObj->fgetcsv();
+                        $data = array();
+                        foreach ($this->importMap as $field => $key) {
+                            $data[$field] = $rawData[$key];
+                        }
+                        echo print_r($data, true)."\n";
                     }
                 }
             }

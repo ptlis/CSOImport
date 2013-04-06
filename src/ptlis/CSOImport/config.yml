@@ -1,0 +1,12 @@
+
+import_map:
+  postcode: 0
+  positional_quality_indicator: 1
+  eastings: 2
+  northings: 3
+  country_code: 4
+  nhs_regional_ha_code: 5
+  nhs_ha_code: 6
+  admin_county_code: 7
+  admin_district_code: 8
+  admin_ward_code: 9
