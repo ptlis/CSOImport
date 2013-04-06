@@ -29,6 +29,9 @@ class CSOReader implements \Iterator
     /** @var \SplFileObject Object representing a single file of data to read. */
     private $currentCSV;
 
+    /** @var string The filename of the current CSV being processed. */
+    private $currentFileName;
+
     public function __construct(array $importMap)
     {
         $this->importMap = $importMap;
@@ -62,19 +65,28 @@ class CSOReader implements \Iterator
                     break;
             }
         } else {
-
             // Find first data file & open for reading
-            for ($this->fileNo = 0; $this->fileNo < $this->archive->numFiles; $this->fileNo++) {
-                $stat = $this->archive->statIndex($this->fileNo);
-                $nameParts = array_filter(explode('/', $stat['name']));
+            $this->fileNo = 0;
+            $this->getNextCSV();
+        }
+    }
 
-                // Found the first matching file, open for reading
-                if (count($nameParts) == 2 && $nameParts[0] == 'Data') {
-                    $this->currentCSV = new \SplFileObject('zip://' . $this->fileName . '#' . $stat['name']);
-                    break;
-                }
+
+    private function getNextCSV()
+    {
+        // Scan for the next data file
+        for (; $this->fileNo < $this->archive->numFiles; $this->fileNo++) {
+            $stat = $this->archive->statIndex($this->fileNo);
+            $nameParts = array_filter(explode('/', $stat['name']));
+
+            // Found the first matching file, open for reading & mark as valid
+            if (count($nameParts) == 2 && $nameParts[0] == 'Data' && $stat['name'] != $this->currentFileName) {
+                $this->currentFileName = $stat['name'];
+                $this->currentCSV = new \SplFileObject('zip://' . $this->fileName . '#' . $stat['name']);
+                return true;
             }
         }
+        return false;
     }
 
 
@@ -137,18 +149,8 @@ class CSOReader implements \Iterator
     public function valid()
     {
         if ($this->currentCSV->eof()) {
-            // End of current file, continue scanning for the next data file
-            for ($this->fileNo++; $this->fileNo < $this->archive->numFiles; $this->fileNo++) {
-                $stat = $this->archive->statIndex($this->fileNo);
-                $nameParts = array_filter(explode('/', $stat['name']));
-
-                // Found the first matching file, open for reading & mark as valid
-                if (count($nameParts) == 2 && $nameParts[0] == 'Data') {
-                    $this->currentCSV = new \SplFileObject('zip://' . $this->fileName . '#' . $stat['name']);
-                    return true;
-                }
-            }
-            return false;
+            // Look for another file
+            return $this->getNextCSV();
 
         } else {
             // Data still remains in current file
