@@ -1,5 +1,14 @@
 <?php
 
+/** Command-line interface for importing Open Code-Point data.
+ *
+ * @version     CSOReader.php v0.1-dev 2013-04-07
+ * @copyright   (c) 2013 ptlis
+ * @license     GNU Lesser General Public License v2.1
+ * @package     ptlis\conneg
+ * @author      Brian Ridley <ptlis@ptlis.net>
+ */
+
 require_once '../vendor/autoload.php';
 
 

@@ -1,5 +1,13 @@
 <?php
 
+/** Console command for importing Open Code-Point data.
+ *
+ * @version     ImportCommand.php v0.1-dev 2013-04-07
+ * @copyright   (c) 2013 ptlis
+ * @license     GNU Lesser General Public License v2.1
+ * @package     ptlis\conneg
+ * @author      Brian Ridley <ptlis@ptlis.net>
+ */
 
 
 namespace ptlis\CSOImport\Command;
@@ -10,21 +18,32 @@ use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Output\OutputInterface;
 use \Symfony\Component\Yaml\Yaml;
 
+/** Class representing the import console command for importing Open Code-Point
+ *  data.
+ */
 class ImportCommand extends \Cilex\Command\Command
 {
+    /** Map of column numbers to human-friendly. */
     private $importMap;
 
-    public function __construct(array $importMap, $name = null)
+
+    /** Constructor
+     *
+     * @param   array   $importMap  Map of column numbers to human-friendly
+     */
+    public function __construct(array $importMap)
     {
-        parent::__construct($name);
+        parent::__construct('import');
         $this->importMap = $importMap;
     }
 
+
+    /** Setup arguments for the import command.
+     */
     protected function configure()
     {
         // TODO: Add update
         $this
-            ->setName('import')
             ->setDescription('The path to the OS Open Code Point zip archive.')
             ->addArgument(
                 'file_name',
@@ -76,6 +95,17 @@ class ImportCommand extends \Cilex\Command\Command
     }
 
 
+    /** Execute the import command.
+     *
+     * @param   InputInterface  $input  Object representing arguments passed to
+     *      the command.
+     * @param   OutputInterface $output Object representing the console output.
+     *
+     * @throws  \RuntimeException           If the config file is missing a
+     *      required field.
+     * @throws \InvalidArgumentException    When an invalid value was provided
+     *      to an argument.
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $configFile = $input->getOption('from-config');
@@ -147,13 +177,7 @@ class ImportCommand extends \Cilex\Command\Command
 
 
         $CSOImporter = new \ptlis\CSOImport\CSOImport($input->getArgument('file_name'), $this->importMap);
-        $CSOImporter->extract();
-
-        /*
-            if ($input->getOption('option_name')) {
-                // Do Something
-            }
-         */
+        $CSOImporter->import();
 
         return;
     }
