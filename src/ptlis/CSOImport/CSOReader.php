@@ -12,9 +12,14 @@
 
 namespace ptlis\CSOImport;
 
+/** Provides an interface to read an Open Code Point CSV line-by-line.
+ */
 class CSOReader implements \Iterator
 {
+    /** @var int The CSO import zip filename. */
     private $fileName;
+
+    /** Map of column numbers to human-friendly. */
     private $importMap;
 
     /** @var int The current file number. */
@@ -32,6 +37,12 @@ class CSOReader implements \Iterator
     /** @var string The filename of the current CSV being processed. */
     private $currentFileName;
 
+
+    /** Constructor
+     *
+     * @param   array   $importMap  Map of column numbers to human-friendly
+     *      names.
+     */
     public function __construct(array $importMap)
     {
         $this->importMap = $importMap;
@@ -39,6 +50,12 @@ class CSOReader implements \Iterator
     }
 
 
+    /** Open a zip file for processing.
+     *
+     * @param   string  $fileName   The file to open.
+     *
+     * @throws  RuntimeException    When there is an error opening the file.
+     */
     public function open($fileName)
     {
         $this->fileName = $fileName;
@@ -46,24 +63,38 @@ class CSOReader implements \Iterator
         if (($errorCode = $this->archive->open($this->fileName) !== true)) {
             switch ($errorCode) {
                 case ZipArchive::ER_EXISTS: // File already exists.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": File already exists.';
                     break;
                 case ZipArchive::ER_INCONS: // Zip archive inconsistent.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Zip archive inconsistent.';
                     break;
                 case ZipArchive::ER_INVAL:  // Invalid argument.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Invalid argument.';
                     break;
                 case ZipArchive::ER_MEMORY: // Malloc failure.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Malloc failure.';
                     break;
                 case ZipArchive::ER_NOENT:  // No such file.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": No such file.';
                     break;
                 case ZipArchive::ER_NOZIP:  // Not a zip archive.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Not a zip archive.';
                     break;
-                case ZipArchive::ER_OPEN:   //Can't open file.
+                case ZipArchive::ER_OPEN:   // Can't open file.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Can\'t open file.';
                     break;
                 case ZipArchive::ER_READ:   // Read error.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Read error.';
                     break;
                 case ZipArchive::ER_SEEK:   // Seek error.
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Seek error.';
+                    break;
+                default:                    // Should never occur
+                    $errMsg = 'Failed to open "' . $this->fileName . '": Should never occur';
                     break;
             }
+
+            throw new RuntimeException($errMsg, $errorCode);
         } else {
             // Find first data file & open for reading
             $this->fileNo = 0;
@@ -72,6 +103,11 @@ class CSOReader implements \Iterator
     }
 
 
+    /** Get the next CSV from the zip.
+     *
+     * @return  boolean True if there are CSVs remaining to parse, false
+     *      otherwise.
+     */
     private function getNextCSV()
     {
         // Scan for the next data file
