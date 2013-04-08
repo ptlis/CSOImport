@@ -22,6 +22,6 @@ $app->register(
     )
 );
 
-$app->command(new ptlis\CSOImport\Command\ImportCommand($app['config']['import_map']));
+$app->command(new ptlis\CSOImport\Command\ImportCommand($app['config']['import_map'], $app['config']['db_fields'], $app['config']['import_cols']));
 
 $app->run();

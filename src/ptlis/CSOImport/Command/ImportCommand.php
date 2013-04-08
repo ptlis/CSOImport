@@ -25,16 +25,25 @@ class ImportCommand extends \Cilex\Command\Command
 {
     /** Map of column numbers to human-friendly. */
     private $importMap;
+    
+    /** Database configuration items. */
+    private $dbFields;
 
+    /** Columns that are made available for import. */
+    private $importCols;
 
     /** Constructor
      *
      * @param   array   $importMap  Map of column numbers to human-friendly
+     * @param   array   $dbFields   Database configuration items.
+     * @param   array   $importCols Columns that are made available for import.
      */
-    public function __construct(array $importMap)
+    public function __construct(array $importMap, array $dbFields, array $importCols)
     {
         parent::__construct('import');
         $this->importMap = $importMap;
+        $this->dbFields = $dbFields;
+        $this->importCols = $importCols;
     }
 
 
@@ -110,14 +119,10 @@ class ImportCommand extends \Cilex\Command\Command
     {
         $configFile = $input->getOption('from-config');
 
-        $dbConfig = array(
-            'driver'    => null,
-            'host'      => null,
-            'port'      => null,
-            'database'  => null,
-            'username'  => null,
-            'password'  => null
-        );
+        $dbConfig = $this->dbFields;
+        
+        $tableName = '';
+        $tableMap = array();
 
         if (strlen($configFile)) {
             // Read config from file
@@ -125,7 +130,7 @@ class ImportCommand extends \Cilex\Command\Command
             $parsed = Yaml::parse($configPath);
 
             if ($parsed != $configPath) {
-                // store parsed config
+                // store parsed db config
                 if (array_key_exists('db', $parsed)) {
                     foreach ($dbConfig as $optionKey => $value) {
                         if (array_key_exists($optionKey, $parsed['db']) && strlen($parsed['db'][$optionKey])) {
@@ -134,6 +139,25 @@ class ImportCommand extends \Cilex\Command\Command
                     }
                 } else {
                     throw new \RuntimeException('Config file missing required field "db"');
+                }
+                
+                // Table name
+                if (array_key_exists('table_name', $parsed)) {
+                    $tableName = $parsed['table_name'];
+                } else {
+                    throw new \RuntimeException('Config file missing required field "table_name"');
+                }
+                
+                // Map of import cols to table cols
+                if (array_key_exists('table_map', $parsed)) {
+                    foreach ($this->importCols as $columnName => $value) {
+                        if (array_key_exists($columnName, $parsed['table_map']) && strlen($parsed['table_map'][$columnName])) {
+                            $tableMap[$columnName] = $parsed['table_map'][$columnName];
+                        }
+                    }
+                    
+                } else {
+                    throw new \RuntimeException('Config file missing required field "table_map"');
                 }
 
             } else {
@@ -168,7 +192,9 @@ class ImportCommand extends \Cilex\Command\Command
             case 'Pdo_Pgsql':
                 break;
             default:
-                throw new \InvalidArgumentException('Driver must be one of "Mysqli", "Pgsql", "Sqlsrv", "Pdo_Mysql", "Pdo_Sqlite" or "Pdo_Pgsql".');
+                throw new \InvalidArgumentException(
+                    'Driver must be one of "Mysqli", "Pgsql", "Sqlsrv", "Pdo_Mysql", "Pdo_Sqlite" or "Pdo_Pgsql".'
+                );
                 break;
         }
 
@@ -176,7 +202,7 @@ class ImportCommand extends \Cilex\Command\Command
 
 
 
-        $CSOImporter = new \ptlis\CSOImport\CSOImport($input->getArgument('file_name'), $this->importMap);
+        $CSOImporter = new \ptlis\CSOImport\CSOImport($input->getArgument('file_name'), $this->importMap, $db);
         $CSOImporter->import();
 
         return;

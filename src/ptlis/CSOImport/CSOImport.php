@@ -24,17 +24,21 @@ class CSOImport
     /** @var array  Map of column numbers to human-friendly. */
     private $importMap;
 
+    /** @var \Zend\Db\Adapter\Adapter    Zend database adapter. */
+    private $db;
 
     /** Constructor
      *
      * @param   string  $filePath   The path to the CSO import zip file.
      * @param   array   $importMap  Map of column numbers to human-friendly
      *      names.
+     * @param    \Zend\Db\Adapter\Adapter $db  Zend database adapter.
      */
-    public function __construct($filePath, array $importMap)
+    public function __construct($filePath, array $importMap, \Zend\Db\Adapter\Adapter $db)
     {
         $this->filePath = $filePath;
         $this->importMap = $importMap;
+        $this->db = $db;
     }
 
 

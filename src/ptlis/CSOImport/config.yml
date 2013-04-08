@@ -1,4 +1,5 @@
 
+# Import map, column names to CSV indexes
 import_map:
   postcode: 0
   positional_quality_indicator: 1
@@ -10,3 +11,27 @@ import_map:
   admin_county_code: 7
   admin_district_code: 8
   admin_ward_code: 9
+
+# Expected db fields
+db_fields:
+  driver:   ''
+  host:     ''
+  port:     ''
+  database: ''
+  username: ''
+  password: ''
+
+# Columns that can be imported into a database
+import_cols:
+  postcode:                     ''
+  eastings:                     ''
+  northings:                    ''
+  latitude:                     ''
+  longitude:                    ''
+  positional_quality_indicator: ''
+  country_code:                 ''
+  nhs_regional_ha_code:         ''
+  nhs_ha_code:                  ''
+  admin_county_code:            ''
+  admin_district_code:          ''
+  admin_ward_code:              ''
