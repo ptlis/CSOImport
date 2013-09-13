@@ -1,4 +1,25 @@
 {
+    "name": "ptlis/CSOImport",
+    "description": "A PHP 5 providing tools to import & transform Ordinance Survey Open Code Point postcode data",
+    "keywords": [
+        "postcode",
+        "geolocation",
+        "Open CodePoint"
+    ],
+    "support": {
+        "email": "ptlis@ptlis.net",
+        "issues": "https://github.com/ptlis/CSOImport/issues",
+        "source": "https://github.com/ptlis/CSOImport"
+    },
+    "time": "2013-09-13",
+    "authors": [
+        {
+            "name": "brian ridley",
+            "email": "ptlis@ptlis.net",
+            "homepage": "https://ptlis.net"
+        }
+    ],
+    "license": "LGPL-2.1+",
     "require": {
         "php":                              ">=5.3.3",
         "cilex/cilex":                      "1.*@dev",
@@ -8,7 +29,7 @@
     },
     "autoload": {
         "psr-0": {
-            "ptlis": "src"
+            "ptlis\\conneg": "src"
         }
     }
 }
