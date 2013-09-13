@@ -24,7 +24,7 @@
         "php":                              ">=5.3.3",
         "cilex/cilex":                      "1.*@dev",
         "cilex/console-service-provider":   "1.*@dev",
-        "symfony/yaml":                     ">=2.1.*,<2.4-dev",
+        "symfony/yaml":                     ">=2.1.0,<2.4-dev",
         "zendframework/zend-db":    "2.2.*"
     },
     "autoload": {
